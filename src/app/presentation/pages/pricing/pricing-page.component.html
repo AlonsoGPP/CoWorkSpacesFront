@@ -16,18 +16,55 @@
       <mat-card-content>
         <form class="form" [formGroup]="form" (ngSubmit)="quotePrice()">
           <mat-form-field appearance="outline">
-            <mat-label>Space ID</mat-label>
-            <input matInput formControlName="space_id" />
+            <mat-label>Espacio</mat-label>
+            <input
+              matInput
+              [formControl]="spaceLookupControl"
+              [matAutocomplete]="spaceAutocomplete"
+              (input)="onSpaceLookupInput()"
+              placeholder="Escribe para filtrar por nombre o ID"
+            />
+            <mat-autocomplete
+              #spaceAutocomplete="matAutocomplete"
+              [displayWith]="displaySpaceOption"
+              (optionSelected)="onSpaceOptionSelected($event.option.value)"
+            >
+              @if (isLoadingSpaces()) {
+                <mat-option disabled>Cargando espacios...</mat-option>
+              } @else if (filteredSpaces().length === 0) {
+                <mat-option disabled>No hay espacios para este filtro</mat-option>
+              } @else {
+                @for (space of filteredSpaces(); track space.id) {
+                  <mat-option [value]="space">
+                    {{ space.name }} | {{ space.status }} | {{ space.id }}
+                  </mat-option>
+                }
+              }
+            </mat-autocomplete>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Inicio</mat-label>
-            <input matInput type="datetime-local" formControlName="start_at" />
+            <mat-label>Fecha inicio</mat-label>
+            <input matInput [matDatepicker]="startDatePicker" formControlName="start_date" />
+            <mat-datepicker-toggle matIconSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #startDatePicker></mat-datepicker>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Fin</mat-label>
-            <input matInput type="datetime-local" formControlName="end_at" />
+            <mat-label>Hora inicio</mat-label>
+            <input matInput type="time" step="900" formControlName="start_time" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha fin</mat-label>
+            <input matInput [matDatepicker]="endDatePicker" formControlName="end_date" />
+            <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #endDatePicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Hora fin</mat-label>
+            <input matInput type="time" step="900" formControlName="end_time" />
           </mat-form-field>
 
           <button mat-flat-button type="submit" [disabled]="isLoading()">Cotizar</button>

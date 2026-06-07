@@ -74,6 +74,14 @@
                   <p>Capacidad: {{ space.capacity }}</p>
                 </div>
                 <div class="item-actions">
+                  <button
+                    mat-icon-button
+                    type="button"
+                    aria-label="Reservar"
+                    (click)="createReservationForSpace(space.id)"
+                  >
+                    <mat-icon>event_available</mat-icon>
+                  </button>
                   <button mat-icon-button type="button" aria-label="Editar" (click)="startEdit(space)">
                     <mat-icon>edit</mat-icon>
                   </button>

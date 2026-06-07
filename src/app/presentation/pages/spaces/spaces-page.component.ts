@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { SpacesUseCases } from '../../../application/use-cases/spaces.use-cases';
@@ -36,6 +37,7 @@ export class SpacesPageComponent {
   private readonly spacesUseCases = inject(SpacesUseCases);
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   readonly statuses = SPACE_STATUSES;
   readonly spaces = signal<Space[]>([]);
@@ -133,6 +135,14 @@ export class SpacesPageComponent {
         },
         error: (error: unknown) => this.errorMessage.set(toErrorMessage(error))
       });
+  }
+
+  createReservationForSpace(spaceId: string): void {
+    void this.router.navigate(['/reservations'], {
+      queryParams: {
+        spaceId
+      }
+    });
   }
 
   private loadSpaces(): void {
