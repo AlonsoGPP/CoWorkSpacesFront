@@ -82,6 +82,14 @@
                   >
                     <mat-icon>event_available</mat-icon>
                   </button>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    aria-label="Disponibilidad"
+                    (click)="viewAvailabilityForSpace(space.id)"
+                  >
+                    <mat-icon>calendar_month</mat-icon>
+                  </button>
                   <button mat-icon-button type="button" aria-label="Editar" (click)="startEdit(space)">
                     <mat-icon>edit</mat-icon>
                   </button>

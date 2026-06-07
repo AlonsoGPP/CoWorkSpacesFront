@@ -35,6 +35,11 @@ export class App {
       route: '/pricing'
     },
     {
+      label: 'Disponibilidad',
+      icon: 'calendar_month',
+      route: '/availability'
+    },
+    {
       label: 'Reportes',
       icon: 'query_stats',
       route: '/reports'

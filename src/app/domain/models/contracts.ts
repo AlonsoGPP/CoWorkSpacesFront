@@ -124,3 +124,37 @@ export interface ReportRangeQuery {
   start_at: ISODateTimeString;
   end_at: ISODateTimeString;
 }
+
+export interface SpaceAvailabilityQuery extends ReportRangeQuery {
+  slot_minutes: number;
+}
+
+export interface SpaceAvailabilityReservationItem {
+  reservation_id: string;
+  start_at: ISODateTimeString;
+  end_at: ISODateTimeString;
+  status: ReservationStatus;
+  total_price: DecimalString;
+  blocks_availability: boolean;
+}
+
+export interface SpaceAvailabilitySlotItem {
+  start_at: ISODateTimeString;
+  end_at: ISODateTimeString;
+  is_available: boolean;
+  overlapping_reservations_count: number;
+}
+
+export interface SpaceAvailability {
+  space_id: string;
+  space_name: string;
+  space_status: SpaceStatus;
+  start_at: ISODateTimeString;
+  end_at: ISODateTimeString;
+  slot_minutes: number;
+  total_slots: number;
+  available_slots: number;
+  availability_percentage: DecimalString;
+  reservations: SpaceAvailabilityReservationItem[];
+  slots: SpaceAvailabilitySlotItem[];
+}

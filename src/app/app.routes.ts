@@ -31,6 +31,14 @@ export const routes: Routes = [
 			)
 	},
 	{
+		path: 'availability',
+		title: 'Disponibilidad',
+		loadComponent: () =>
+			import('./presentation/pages/availability/availability-page.component').then(
+				(module) => module.AvailabilityPageComponent
+			)
+	},
+	{
 		path: 'reports',
 		title: 'Reportes',
 		loadComponent: () =>

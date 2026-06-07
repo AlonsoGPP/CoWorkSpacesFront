@@ -1,8 +1,3 @@
-export interface TimeOption {
-  value: string;
-  label: string;
-}
-
 export interface DateTimeRangeDefaults {
   startDate: Date;
   startTime: string;
@@ -24,19 +19,6 @@ function roundDateToStep(date: Date, stepMinutes: number): Date {
   const flooredMinutes = Math.floor(minutes / stepMinutes) * stepMinutes;
   rounded.setMinutes(flooredMinutes, 0, 0);
   return rounded;
-}
-
-export function buildTimeOptions(stepMinutes = 15): TimeOption[] {
-  const options: TimeOption[] = [];
-
-  for (let hour = 0; hour < 24; hour += 1) {
-    for (let minute = 0; minute < 60; minute += stepMinutes) {
-      const value = `${padTwoDigits(hour)}:${padTwoDigits(minute)}`;
-      options.push({ value, label: value });
-    }
-  }
-
-  return options;
 }
 
 export function combineDateAndTimeToIso(dateValue: unknown, timeValue: unknown): string | null {

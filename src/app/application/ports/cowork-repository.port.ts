@@ -12,6 +12,8 @@ import {
   ReservationCancellationQuote,
   ReservationsByStatusReport,
   RevenueReport,
+  SpaceAvailability,
+  SpaceAvailabilityQuery,
   SaveSpaceCommand,
   Space
 } from '../../domain/models/contracts';
@@ -34,6 +36,11 @@ export interface CoworkRepositoryPort {
   getOccupancyBySpaceReport(query: ReportRangeQuery): Observable<OccupancyBySpaceReport>;
   getRevenueReport(query: ReportRangeQuery): Observable<RevenueReport>;
   getReservationsByStatusReport(query: ReportRangeQuery): Observable<ReservationsByStatusReport>;
+
+  getSpaceAvailability(
+    spaceId: string,
+    query: SpaceAvailabilityQuery
+  ): Observable<SpaceAvailability>;
 }
 
 export const COWORK_REPOSITORY = new InjectionToken<CoworkRepositoryPort>('COWORK_REPOSITORY');

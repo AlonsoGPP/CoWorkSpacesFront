@@ -145,6 +145,14 @@ export class SpacesPageComponent {
     });
   }
 
+  viewAvailabilityForSpace(spaceId: string): void {
+    void this.router.navigate(['/availability'], {
+      queryParams: {
+        spaceId
+      }
+    });
+  }
+
   private loadSpaces(): void {
     this.errorMessage.set(null);
     this.isLoading.set(true);

@@ -1,0 +1,178 @@
+<section class="page">
+  <header class="page-header">
+    <h1>Disponibilidad por Espacio</h1>
+    <p>Visualiza agenda tipo calendario y listado de slots disponibles por rango.</p>
+  </header>
+
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">{{ message }}</div>
+  }
+
+  <mat-card class="panel">
+    <mat-card-header>
+      <mat-card-title>Consulta de disponibilidad</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form class="query-form" [formGroup]="form" (ngSubmit)="loadAvailability()">
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>Espacio</mat-label>
+          <input
+            matInput
+            [formControl]="spaceLookupControl"
+            [matAutocomplete]="spaceAutocomplete"
+            (input)="onSpaceLookupInput()"
+            placeholder="Escribe para filtrar por nombre o ID"
+          />
+          <mat-autocomplete
+            #spaceAutocomplete="matAutocomplete"
+            [displayWith]="displaySpaceOption"
+            (optionSelected)="onSpaceOptionSelected($event.option.value)"
+          >
+            @if (isLoadingSpaces()) {
+              <mat-option disabled>Cargando espacios...</mat-option>
+            } @else if (filteredSpaces().length === 0) {
+              <mat-option disabled>No hay espacios para este filtro</mat-option>
+            } @else {
+              @for (space of filteredSpaces(); track space.id) {
+                <mat-option [value]="space">
+                  {{ space.name }} | {{ space.status }} | {{ space.id }}
+                </mat-option>
+              }
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha inicio</mat-label>
+          <input matInput [matDatepicker]="startDatePicker" formControlName="start_date" />
+          <mat-datepicker-toggle matIconSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #startDatePicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Hora inicio</mat-label>
+          <input matInput type="time" step="900" formControlName="start_time" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha fin</mat-label>
+          <input matInput [matDatepicker]="endDatePicker" formControlName="end_date" />
+          <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #endDatePicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Hora fin</mat-label>
+          <input matInput type="time" step="900" formControlName="end_time" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Slot (min)</mat-label>
+          <input matInput type="number" min="15" max="120" step="5" formControlName="slot_minutes" />
+        </mat-form-field>
+
+        <div class="actions span-2">
+          <button mat-flat-button type="submit" [disabled]="isLoadingAvailability()">
+            {{ isLoadingAvailability() ? 'Consultando...' : 'Ver disponibilidad' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  @if (availability(); as data) {
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>{{ data.space_name }} ({{ data.space_status }})</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="summary-grid">
+          <div>
+            <p class="metric-label">Disponibilidad</p>
+            <p class="metric-value">{{ data.availability_percentage }}%</p>
+          </div>
+          <div>
+            <p class="metric-label">Slots libres</p>
+            <p class="metric-value">{{ data.available_slots }} / {{ data.total_slots }}</p>
+          </div>
+          <div>
+            <p class="metric-label">Rango</p>
+            <p class="metric-value small">{{ data.start_at | date: 'short' }} - {{ data.end_at | date: 'short' }}</p>
+          </div>
+        </div>
+
+        <div class="mode-actions">
+          <button
+            mat-stroked-button
+            type="button"
+            [class.mode-active]="viewMode() === 'calendar'"
+            (click)="setViewMode('calendar')"
+          >
+            Vista calendario
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            [class.mode-active]="viewMode() === 'list'"
+            (click)="setViewMode('list')"
+          >
+            Vista listado
+          </button>
+        </div>
+
+        @if (viewMode() === 'calendar') {
+          @if (hasMoreCalendarDays()) {
+            <p class="hint">Mostrando los primeros 7 dias para mantener legibilidad del calendario.</p>
+          }
+
+          <div class="calendar-shell">
+            <div class="hours-column" [style.height.px]="dayHeightPx">
+              @for (hour of hourGuides; track hour.label) {
+                <div class="hour-label" [style.top.px]="hour.topPx">{{ hour.label }}</div>
+              }
+            </div>
+
+            <div class="days-grid">
+              @for (day of calendarDays(); track day.key) {
+                <article class="day-column">
+                  <header class="day-header">{{ day.label }}</header>
+                  <div class="day-timeline" [style.height.px]="dayHeightPx">
+                    @for (hour of hourGuides; track hour.label) {
+                      <div class="hour-line" [style.top.px]="hour.topPx"></div>
+                    }
+
+                    @for (block of day.blocks; track block.reservationId + '-' + block.topPx) {
+                      <div
+                        class="reservation-block"
+                        [class.reservation-block-soft]="!block.blocksAvailability"
+                        [ngClass]="statusClass(block.status)"
+                        [style.top.px]="block.topPx"
+                        [style.height.px]="block.heightPx"
+                        title="{{ block.status }} | {{ block.startLabel }} - {{ block.endLabel }}"
+                      >
+                        <p>{{ block.startLabel }} - {{ block.endLabel }}</p>
+                        <p>{{ block.status }}</p>
+                      </div>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="slot-list">
+            @for (slot of data.slots; track trackSlot($index, slot)) {
+              <article class="slot-item" [class.slot-free]="slot.is_available" [class.slot-busy]="!slot.is_available">
+                <p>
+                  <strong>{{ slot.start_at | date: 'shortTime' }} - {{ slot.end_at | date: 'shortTime' }}</strong>
+                </p>
+                <p>{{ slot.is_available ? 'Disponible' : 'Ocupado' }}</p>
+                <p>Reservas solapadas: {{ slot.overlapping_reservations_count }}</p>
+              </article>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

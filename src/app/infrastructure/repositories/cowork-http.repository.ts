@@ -14,6 +14,8 @@ import {
   ReservationCancellationQuote,
   ReservationsByStatusReport,
   RevenueReport,
+  SpaceAvailability,
+  SpaceAvailabilityQuery,
   SaveSpaceCommand,
   Space
 } from '../../domain/models/contracts';
@@ -94,6 +96,15 @@ export class CoworkHttpRepository implements CoworkRepositoryPort {
         params: this.buildRangeParams(query)
       }
     );
+  }
+
+  getSpaceAvailability(
+    spaceId: string,
+    query: SpaceAvailabilityQuery
+  ): Observable<SpaceAvailability> {
+    return this.httpClient.get<SpaceAvailability>(this.buildUrl(`/availability/by-space/${spaceId}`), {
+      params: this.buildRangeParams(query).set('slot_minutes', String(query.slot_minutes))
+    });
   }
 
   private buildUrl(path: string): string {
