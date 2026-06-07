@@ -1,0 +1,64 @@
+<section class="page">
+  <header class="page-header">
+    <h1>Cotizador de Tarifas</h1>
+    <p>Previsualiza el monto total de una reserva aplicando reglas dinamicas.</p>
+  </header>
+
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">{{ message }}</div>
+  }
+
+  <div class="content-grid">
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>Cotizar reserva</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form class="form" [formGroup]="form" (ngSubmit)="quotePrice()">
+          <mat-form-field appearance="outline">
+            <mat-label>Space ID</mat-label>
+            <input matInput formControlName="space_id" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Inicio</mat-label>
+            <input matInput type="datetime-local" formControlName="start_at" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Fin</mat-label>
+            <input matInput type="datetime-local" formControlName="end_at" />
+          </mat-form-field>
+
+          <button mat-flat-button type="submit" [disabled]="isLoading()">Cotizar</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>Resultado</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (quote(); as pricingQuote) {
+          <div class="result-block">
+            <p><strong>Space:</strong> {{ pricingQuote.space_id }}</p>
+            <p><strong>Inicio:</strong> {{ pricingQuote.start_at | date: 'medium' }}</p>
+            <p><strong>Fin:</strong> {{ pricingQuote.end_at | date: 'medium' }}</p>
+            <p><strong>Tarifa base:</strong> {{ pricingQuote.base_hourly_rate }}</p>
+            <p class="total"><strong>Total:</strong> {{ pricingQuote.total_price }}</p>
+
+            <h3>Reglas aplicadas</h3>
+            <mat-chip-set>
+              @for (rule of pricingQuote.applied_rules; track rule) {
+                <mat-chip>{{ rule }}</mat-chip>
+              }
+            </mat-chip-set>
+          </div>
+        } @else {
+          <p class="empty-state">Aun no hay una cotizacion.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>

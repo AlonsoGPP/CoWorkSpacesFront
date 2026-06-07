@@ -1,0 +1,102 @@
+<section class="page">
+  <header class="page-header">
+    <h1>Reportes</h1>
+    <p>Consulta ocupacion, ingresos y reservas por estado en un rango de fechas.</p>
+  </header>
+
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">{{ message }}</div>
+  }
+
+  <mat-card class="panel">
+    <mat-card-header>
+      <mat-card-title>Rango de consulta</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form class="query-form" [formGroup]="form">
+        <mat-form-field appearance="outline">
+          <mat-label>Inicio</mat-label>
+          <input matInput type="datetime-local" formControlName="start_at" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fin</mat-label>
+          <input matInput type="datetime-local" formControlName="end_at" />
+        </mat-form-field>
+
+        <div class="buttons">
+          <button mat-flat-button type="button" (click)="loadOccupancyReport()" [disabled]="isLoading()">
+            Ocupacion por espacio
+          </button>
+          <button mat-stroked-button type="button" (click)="loadRevenueReport()" [disabled]="isLoading()">
+            Ingresos
+          </button>
+          <button mat-stroked-button type="button" (click)="loadStatusReport()" [disabled]="isLoading()">
+            Reservas por estado
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="report-grid">
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>Ocupacion por espacio</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (occupancyReport(); as report) {
+          <p><strong>Total minutos:</strong> {{ report.total_minutes_in_range }}</p>
+          <div class="item-list">
+            @for (item of report.items; track item.space_id) {
+              <article class="item-row">
+                <p><strong>{{ item.space_name }}</strong></p>
+                <p>ID: {{ item.space_id }}</p>
+                <p>Minutos ocupados: {{ item.occupied_minutes }}</p>
+                <p>Ocupacion: {{ item.occupancy_percentage }}%</p>
+                <p>Reservas: {{ item.reservations_count }}</p>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="empty-state">Sin datos de ocupacion.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>Ingreso total</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (revenueReport(); as report) {
+          <p class="kpi">{{ report.total_revenue }}</p>
+          <p>Desde {{ report.start_at | date: 'short' }} hasta {{ report.end_at | date: 'short' }}</p>
+        } @else {
+          <p class="empty-state">Sin datos de ingresos.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>Reservas por estado</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (statusReport(); as report) {
+          <p><strong>Total:</strong> {{ report.total_reservations }}</p>
+          <div class="item-list">
+            @for (item of report.items; track item.status) {
+              <article class="item-row compact">
+                <p>{{ item.status }}</p>
+                <p>{{ item.count }}</p>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="empty-state">Sin datos de estados.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>

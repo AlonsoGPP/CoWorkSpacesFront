@@ -1,0 +1,96 @@
+<section class="page">
+  <header class="page-header">
+    <h1>Gestion de Espacios</h1>
+    <p>Alta, edicion y eliminacion de espacios CoWork.</p>
+  </header>
+
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">{{ message }}</div>
+  }
+
+  <div class="page-grid">
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>{{ editingSpaceId() ? 'Editar espacio' : 'Nuevo espacio' }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="name" maxlength="120" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Estado</mat-label>
+            <mat-select formControlName="status">
+              @for (status of statuses; track status) {
+                <mat-option [value]="status">{{ status }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Tarifa por hora</mat-label>
+            <input matInput formControlName="hourly_rate" placeholder="150.00" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Capacidad</mat-label>
+            <input matInput formControlName="capacity" type="number" min="1" max="500" />
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-flat-button type="submit" [disabled]="isSubmitting()">
+              {{ editingSpaceId() ? 'Guardar cambios' : 'Crear espacio' }}
+            </button>
+            @if (editingSpaceId()) {
+              <button mat-stroked-button type="button" (click)="cancelEdit()">Cancelar</button>
+            }
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>Espacios registrados</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (isLoading()) {
+          <div class="loading-state">
+            <mat-spinner diameter="32"></mat-spinner>
+          </div>
+        } @else if (spaces().length === 0) {
+          <p class="empty-state">No hay espacios cargados todavia.</p>
+        } @else {
+          <div class="space-grid">
+            @for (space of spaces(); track space.id) {
+              <article class="space-item">
+                <div>
+                  <h3>{{ space.name }}</h3>
+                  <p>ID: {{ space.id }}</p>
+                  <p>Estado: {{ space.status }}</p>
+                  <p>Tarifa: {{ space.hourly_rate }}</p>
+                  <p>Capacidad: {{ space.capacity }}</p>
+                </div>
+                <div class="item-actions">
+                  <button mat-icon-button type="button" aria-label="Editar" (click)="startEdit(space)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    aria-label="Eliminar"
+                    (click)="deleteSpace(space.id)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>

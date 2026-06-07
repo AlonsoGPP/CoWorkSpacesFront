@@ -1,0 +1,39 @@
+@import '@angular/material/prebuilt-themes/cyan-orange.css';
+
+:root {
+	--font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+	--font-body: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+	--text-main: #142330;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	min-height: 100%;
+}
+
+body {
+	margin: 0;
+	color: var(--text-main);
+	font-family: var(--font-body);
+	background:
+		radial-gradient(circle at 15% 10%, rgba(54, 185, 201, 0.25), transparent 44%),
+		radial-gradient(circle at 85% 20%, rgba(255, 178, 122, 0.24), transparent 42%),
+		linear-gradient(160deg, #f5fbfc 0%, #fdf8f2 100%);
+}
+
+mat-card {
+	background: rgba(255, 255, 255, 0.86) !important;
+	border: 1px solid rgba(22, 44, 58, 0.08);
+	box-shadow: 0 10px 30px rgba(31, 60, 83, 0.08) !important;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	font-family: var(--font-display);
+}

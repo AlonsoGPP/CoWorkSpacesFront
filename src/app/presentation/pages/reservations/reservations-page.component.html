@@ -1,0 +1,149 @@
+<section class="page">
+  <header class="page-header">
+    <h1>Reservas</h1>
+    <p>Crear reservas, consultarlas y aplicar cancelaciones con cotizacion previa.</p>
+  </header>
+
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">{{ message }}</div>
+  }
+
+  @if (lastRefund(); as refund) {
+    <div class="success-banner" role="status">
+      Reserva {{ refund.reservationId }} cancelada. Reembolso: {{ refund.refundAmount }}.
+    </div>
+  }
+
+  <div class="forms-grid">
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>Nueva reserva</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form class="form" [formGroup]="createForm" (ngSubmit)="createReservation()">
+          <mat-form-field appearance="outline">
+            <mat-label>Space ID</mat-label>
+            <input matInput formControlName="space_id" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Inicio</mat-label>
+            <input matInput type="datetime-local" formControlName="start_at" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Fin</mat-label>
+            <input matInput type="datetime-local" formControlName="end_at" />
+          </mat-form-field>
+
+          <button mat-flat-button type="submit" [disabled]="isWorking()">Crear reserva</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>Consultar por espacio</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form class="form form-inline" [formGroup]="bySpaceForm" (ngSubmit)="loadReservationsBySpace()">
+          <mat-form-field appearance="outline">
+            <mat-label>Space ID</mat-label>
+            <input matInput formControlName="space_id" />
+          </mat-form-field>
+          <button mat-stroked-button type="submit" [disabled]="isWorking()">Cargar</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>Consultar por ID</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form class="form form-inline" [formGroup]="byIdForm" (ngSubmit)="loadReservationById()">
+          <mat-form-field appearance="outline">
+            <mat-label>Reservation ID</mat-label>
+            <input matInput formControlName="reservation_id" />
+          </mat-form-field>
+          <button mat-stroked-button type="submit" [disabled]="isWorking()">Buscar</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="content-grid">
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>Resultados por espacio</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (reservations().length === 0) {
+          <p class="empty-state">No hay reservas cargadas para el espacio consultado.</p>
+        } @else {
+          <div class="reservations-list">
+            @for (reservation of reservations(); track reservation.id) {
+              <article class="reservation-item" (click)="selectReservation(reservation)">
+                <div>
+                  <h3>{{ reservation.id }}</h3>
+                  <p>Estado: {{ reservation.status }}</p>
+                  <p>Inicio: {{ reservation.start_at | date: 'short' }}</p>
+                  <p>Fin: {{ reservation.end_at | date: 'short' }}</p>
+                  <p>Total: {{ reservation.total_price }}</p>
+                </div>
+                <div class="item-actions">
+                  <button
+                    mat-icon-button
+                    type="button"
+                    aria-label="Cotizar cancelacion"
+                    (click)="quoteCancellation(reservation.id); $event.stopPropagation()"
+                  >
+                    <mat-icon>request_quote</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    aria-label="Cancelar reserva"
+                    (click)="cancelReservation(reservation.id); $event.stopPropagation()"
+                  >
+                    <mat-icon>event_busy</mat-icon>
+                  </button>
+                </div>
+              </article>
+
+              @if (quoteFor(reservation.id); as quote) {
+                <div class="quote-box">
+                  <p><strong>Tier:</strong> {{ quote.refund_tier }}</p>
+                  <p><strong>Reembolso:</strong> {{ quote.refund_amount }} (tasa {{ quote.refund_rate }})</p>
+                  <p><strong>Cotizado:</strong> {{ quote.quoted_at | date: 'short' }}</p>
+                </div>
+              }
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="panel">
+      <mat-card-header>
+        <mat-card-title>Detalle de reserva</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (selectedReservation(); as reservation) {
+          <div class="detail-list">
+            <p><strong>ID:</strong> {{ reservation.id }}</p>
+            <p><strong>Space ID:</strong> {{ reservation.space_id }}</p>
+            <p><strong>Estado:</strong> {{ reservation.status }}</p>
+            <p><strong>Inicio:</strong> {{ reservation.start_at | date: 'full' }}</p>
+            <p><strong>Fin:</strong> {{ reservation.end_at | date: 'full' }}</p>
+            <p><strong>Total:</strong> {{ reservation.total_price }}</p>
+            <p><strong>Creada:</strong> {{ reservation.created_at | date: 'medium' }}</p>
+            <p><strong>Cancelada:</strong> {{ reservation.cancelled_at ? (reservation.cancelled_at | date: 'medium') : '-' }}</p>
+          </div>
+        } @else {
+          <p class="empty-state">Selecciona una reserva para ver su detalle.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>

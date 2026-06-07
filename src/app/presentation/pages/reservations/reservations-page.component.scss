@@ -1,0 +1,122 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.1vw, 2rem);
+}
+
+.page-header p {
+  margin: 0.3rem 0 0;
+  opacity: 0.8;
+}
+
+.error-banner,
+.success-banner {
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+.error-banner {
+  border: 1px solid rgba(190, 61, 61, 0.45);
+  background: rgba(190, 61, 61, 0.08);
+  color: rgb(108, 22, 22);
+}
+
+.success-banner {
+  border: 1px solid rgba(55, 116, 58, 0.45);
+  background: rgba(65, 132, 68, 0.1);
+  color: rgb(24, 88, 27);
+}
+
+.forms-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.panel {
+  border-radius: 16px;
+}
+
+.form {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.form-inline {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1rem;
+}
+
+.empty-state {
+  opacity: 0.75;
+}
+
+.reservations-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.8rem;
+}
+
+.reservation-item {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  cursor: pointer;
+}
+
+.reservation-item h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.reservation-item p {
+  margin: 0.22rem 0;
+  font-size: 0.9rem;
+}
+
+.item-actions {
+  display: flex;
+  height: fit-content;
+}
+
+.quote-box {
+  border-left: 3px solid rgba(34, 95, 153, 0.4);
+  padding: 0.5rem 0.8rem;
+  margin-left: 0.5rem;
+  background: rgba(34, 95, 153, 0.06);
+  border-radius: 8px;
+}
+
+.quote-box p {
+  margin: 0.2rem 0;
+  font-size: 0.88rem;
+}
+
+.detail-list p {
+  margin: 0.38rem 0;
+}
+
+@media (max-width: 1120px) {
+  .forms-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}

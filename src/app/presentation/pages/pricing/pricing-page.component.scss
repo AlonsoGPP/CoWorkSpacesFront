@@ -1,0 +1,57 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
+}
+
+.page-header p {
+  margin: 0.35rem 0 0;
+  opacity: 0.8;
+}
+
+.error-banner {
+  border: 1px solid rgba(190, 61, 61, 0.45);
+  background: rgba(190, 61, 61, 0.08);
+  color: rgb(108, 22, 22);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.panel {
+  border-radius: 16px;
+}
+
+.form {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.result-block p {
+  margin: 0.35rem 0;
+}
+
+.total {
+  font-size: 1.18rem;
+}
+
+.empty-state {
+  opacity: 0.75;
+}
+
+@media (max-width: 920px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
