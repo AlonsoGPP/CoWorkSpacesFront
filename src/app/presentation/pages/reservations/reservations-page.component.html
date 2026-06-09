@@ -73,7 +73,34 @@
             <input matInput type="time" step="900" formControlName="end_time" />
           </mat-form-field>
 
-          <button mat-flat-button type="submit" [disabled]="isWorking()">Crear reserva</button>
+          <div class="price-preview" role="status" aria-live="polite">
+            @if (isLoadingPricePreview()) {
+              <p class="preview-hint">Calculando preview de precio...</p>
+            } @else if (pricePreviewError(); as previewError) {
+              <p class="preview-error">{{ previewError }}</p>
+            } @else if (pricePreview(); as preview) {
+              <p><strong>Tarifa base:</strong> {{ preview.base_hourly_rate }}</p>
+              <p class="preview-total"><strong>Total estimado:</strong> {{ preview.total_price }}</p>
+
+              @if (preview.applied_rules.length > 0) {
+                <div class="preview-rules">
+                  @for (rule of preview.applied_rules; track rule) {
+                    <span class="preview-rule">{{ rule }}</span>
+                  }
+                </div>
+              }
+            } @else {
+              <p class="preview-hint">Completa espacio, fecha y hora para ver el precio antes de confirmar.</p>
+            }
+          </div>
+
+          <button
+            mat-flat-button
+            type="submit"
+            [disabled]="isWorking() || isLoadingPricePreview() || pricePreview() === null"
+          >
+            Crear reserva
+          </button>
         </form>
       </mat-card-content>
     </mat-card>

@@ -7,6 +7,17 @@ export interface ErrorResponse {
   details?: string[];
 }
 
+export interface LoginCommand {
+  email: string;
+  password: string;
+}
+
+export interface AuthTokenResponse {
+  access_token: string;
+  token_type: string;
+  expires_in_seconds: number;
+}
+
 export const SPACE_STATUSES = ['ACTIVO', 'MANTENIMIENTO'] as const;
 export type SpaceStatus = (typeof SPACE_STATUSES)[number];
 

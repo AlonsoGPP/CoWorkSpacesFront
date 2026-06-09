@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+
+import { AuthUseCases } from './application/use-cases/auth.use-cases';
 
 interface NavItem {
   label: string;
@@ -18,6 +20,9 @@ interface NavItem {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class App {
+  private readonly authUseCases = inject(AuthUseCases);
+  private readonly router = inject(Router);
+
   readonly navItems: NavItem[] = [
     {
       label: 'Espacios',
@@ -45,4 +50,13 @@ export class App {
       route: '/reports'
     }
   ];
+
+  isAuthenticated(): boolean {
+    return this.authUseCases.isAuthenticated();
+  }
+
+  logout(): void {
+    this.authUseCases.logout();
+    void this.router.navigate(['/login']);
+  }
 }

@@ -5,14 +5,23 @@
       <span class="brand-title">CoWork Reservations Console</span>
     </div>
 
-    <nav class="menu" aria-label="Navegacion principal">
-      @for (item of navItems; track item.route) {
-        <a mat-button [routerLink]="item.route" routerLinkActive="active-link">
-          <mat-icon>{{ item.icon }}</mat-icon>
-          <span>{{ item.label }}</span>
-        </a>
-      }
-    </nav>
+    @if (isAuthenticated()) {
+      <div class="actions">
+        <nav class="menu" aria-label="Navegacion principal">
+          @for (item of navItems; track item.route) {
+            <a mat-button [routerLink]="item.route" routerLinkActive="active-link">
+              <mat-icon>{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </nav>
+
+        <button mat-stroked-button type="button" (click)="logout()" aria-label="Cerrar sesion">
+          <mat-icon>logout</mat-icon>
+          <span>Cerrar sesion</span>
+        </button>
+      </div>
+    }
   </mat-toolbar>
 
   <main class="content">

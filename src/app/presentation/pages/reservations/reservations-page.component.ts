@@ -11,12 +11,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { ActivatedRoute } from '@angular/router';
-import { finalize } from 'rxjs';
+import { catchError, debounceTime, finalize, of, startWith, switchMap, tap } from 'rxjs';
 
+import { PricingUseCase } from '../../../application/use-cases/pricing.use-case';
 import { ReservationsUseCases } from '../../../application/use-cases/reservations.use-cases';
 import { SpacesUseCases } from '../../../application/use-cases/spaces.use-cases';
 import {
   CreateReservationCommand,
+  PriceQuoteCommand,
+  PricingQuote,
   Reservation,
   ReservationCancellationQuote,
   Space
@@ -46,6 +49,7 @@ import { toErrorMessage } from '../../utils/error-message';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReservationsPageComponent {
+  private readonly pricingUseCase = inject(PricingUseCase);
   private readonly reservationsUseCases = inject(ReservationsUseCases);
   private readonly spacesUseCases = inject(SpacesUseCases);
   private readonly formBuilder = inject(NonNullableFormBuilder);
@@ -60,6 +64,9 @@ export class ReservationsPageComponent {
   readonly selectedReservation = signal<Reservation | null>(null);
   readonly cancellationQuotes = signal<Record<string, ReservationCancellationQuote>>({});
   readonly lastRefund = signal<{ reservationId: string; refundAmount: string } | null>(null);
+  readonly pricePreview = signal<PricingQuote | null>(null);
+  readonly isLoadingPricePreview = signal<boolean>(false);
+  readonly pricePreviewError = signal<string | null>(null);
   readonly isWorking = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
 
@@ -117,10 +124,13 @@ export class ReservationsPageComponent {
   constructor() {
     this.listenSpaceSelectionFromRoute();
     this.loadSpaces();
+    this.watchCreateFormForPricePreview();
   }
 
   onSpaceLookupInput(): void {
     this.createForm.controls.space_id.setValue('');
+    this.pricePreview.set(null);
+    this.pricePreviewError.set(null);
   }
 
   onSpaceOptionSelected(space: Space): void {
@@ -128,29 +138,22 @@ export class ReservationsPageComponent {
   }
 
   createReservation(): void {
-    if (this.createForm.invalid) {
+    const pricingCommand = this.buildPriceQuoteCommand();
+    if (pricingCommand === null) {
       this.createForm.markAllAsTouched();
+      this.errorMessage.set('Completa espacio, fecha y hora para crear la reserva');
       return;
     }
 
-    const startIso = combineDateAndTimeToIso(
-      this.createForm.controls.start_date.value,
-      this.createForm.controls.start_time.value
-    );
-    const endIso = combineDateAndTimeToIso(
-      this.createForm.controls.end_date.value,
-      this.createForm.controls.end_time.value
-    );
-
-    if (startIso === null || endIso === null) {
-      this.errorMessage.set('Las fechas de la reserva no tienen un formato valido');
+    if (!this.hasPreviewForCommand(pricingCommand)) {
+      this.errorMessage.set('Espera a que se actualice el preview de precio antes de crear la reserva');
       return;
     }
 
     const command: CreateReservationCommand = {
-      space_id: this.createForm.controls.space_id.value.trim(),
-      start_at: startIso,
-      end_at: endIso
+      space_id: pricingCommand.space_id,
+      start_at: pricingCommand.start_at,
+      end_at: pricingCommand.end_at
     };
 
     this.errorMessage.set(null);
@@ -339,5 +342,77 @@ export class ReservationsPageComponent {
   private applySelectedSpace(space: Space): void {
     this.createForm.controls.space_id.setValue(space.id);
     this.bySpaceForm.controls.space_id.setValue(space.id);
+  }
+
+  private watchCreateFormForPricePreview(): void {
+    this.createForm.valueChanges
+      .pipe(
+        startWith(this.createForm.getRawValue()),
+        debounceTime(350),
+        switchMap(() => this.refreshPricePreview()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
+  }
+
+  private refreshPricePreview() {
+    const command = this.buildPriceQuoteCommand();
+    if (command === null) {
+      this.pricePreview.set(null);
+      this.pricePreviewError.set(null);
+      this.isLoadingPricePreview.set(false);
+      return of(null);
+    }
+
+    this.pricePreviewError.set(null);
+    this.isLoadingPricePreview.set(true);
+
+    return this.pricingUseCase.quoteReservationPrice(command).pipe(
+      tap((quote) => this.pricePreview.set(quote)),
+      catchError((error: unknown) => {
+        this.pricePreview.set(null);
+        this.pricePreviewError.set(toErrorMessage(error));
+        return of(null);
+      }),
+      finalize(() => this.isLoadingPricePreview.set(false))
+    );
+  }
+
+  private buildPriceQuoteCommand(): PriceQuoteCommand | null {
+    if (this.createForm.controls.space_id.value.trim().length === 0) {
+      return null;
+    }
+
+    const startIso = combineDateAndTimeToIso(
+      this.createForm.controls.start_date.value,
+      this.createForm.controls.start_time.value
+    );
+    const endIso = combineDateAndTimeToIso(
+      this.createForm.controls.end_date.value,
+      this.createForm.controls.end_time.value
+    );
+
+    if (startIso === null || endIso === null) {
+      return null;
+    }
+
+    return {
+      space_id: this.createForm.controls.space_id.value.trim(),
+      start_at: startIso,
+      end_at: endIso
+    };
+  }
+
+  private hasPreviewForCommand(command: PriceQuoteCommand): boolean {
+    const preview = this.pricePreview();
+    if (preview === null) {
+      return false;
+    }
+
+    return (
+      preview.space_id === command.space_id &&
+      preview.start_at === command.start_at &&
+      preview.end_at === command.end_at
+    );
   }
 }

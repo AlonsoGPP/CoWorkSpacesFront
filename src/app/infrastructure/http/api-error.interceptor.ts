@@ -6,6 +6,8 @@ import { ErrorResponse } from '../../domain/models/contracts';
 
 function fallbackErrorCodeByStatus(status: number): string {
   switch (status) {
+    case 401:
+      return 'authentication_error';
     case 400:
       return 'domain_error';
     case 404:

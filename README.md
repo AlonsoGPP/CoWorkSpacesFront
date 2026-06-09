@@ -21,10 +21,13 @@ El frontend respeta separacion por capas para mantener bajo acoplamiento:
 
 ## Modulos funcionales implementados
 
+- Autenticacion (`/login`): login con JWT, persistencia de sesion y logout.
 - Espacios (`/spaces`): crear, editar, listar y eliminar.
 - Reservas (`/reservations`): crear, consultar por espacio e id, cotizar cancelacion y cancelar.
 - Pricing (`/pricing`): cotizar precio de reserva.
 - Reportes (`/reports`): ocupacion, revenue y reservas por estado.
+
+Las rutas funcionales (`/spaces`, `/reservations`, `/pricing`, `/availability`, `/reports`) estan protegidas por guard.
 
 ## Configuracion de API
 
@@ -70,3 +73,17 @@ Se implemento interceptor global para normalizar errores backend:
 - Mantiene `error_code`
 - Expone `status`, `message` y `details`
 - Permite manejo uniforme en UI
+
+## Autenticacion JWT en frontend
+
+Flujo:
+
+1. La pagina `/login` envia credenciales a `POST /auth/login`.
+2. El frontend guarda el token en `localStorage` con expiracion.
+3. Un interceptor agrega `Authorization: Bearer <token>` en llamadas al API.
+4. Si el backend responde 401 en una ruta protegida, se limpia la sesion y se redirige a `/login`.
+
+Credenciales demo backend:
+
+- `admin@cowork.local`
+- `Admin123!`

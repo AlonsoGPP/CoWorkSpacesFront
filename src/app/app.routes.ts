@@ -1,6 +1,16 @@
 import { Routes } from '@angular/router';
 
+import { authGuard } from './presentation/guards/auth.guard';
+
 export const routes: Routes = [
+	{
+		path: 'login',
+		title: 'Iniciar sesion',
+		loadComponent: () =>
+			import('./presentation/pages/login/login-page.component').then(
+				(module) => module.LoginPageComponent
+			)
+	},
 	{
 		path: '',
 		pathMatch: 'full',
@@ -9,6 +19,7 @@ export const routes: Routes = [
 	{
 		path: 'spaces',
 		title: 'Espacios',
+		canActivate: [authGuard],
 		loadComponent: () =>
 			import('./presentation/pages/spaces/spaces-page.component').then(
 				(module) => module.SpacesPageComponent
@@ -17,6 +28,7 @@ export const routes: Routes = [
 	{
 		path: 'reservations',
 		title: 'Reservas',
+		canActivate: [authGuard],
 		loadComponent: () =>
 			import('./presentation/pages/reservations/reservations-page.component').then(
 				(module) => module.ReservationsPageComponent
@@ -25,6 +37,7 @@ export const routes: Routes = [
 	{
 		path: 'pricing',
 		title: 'Pricing',
+		canActivate: [authGuard],
 		loadComponent: () =>
 			import('./presentation/pages/pricing/pricing-page.component').then(
 				(module) => module.PricingPageComponent
@@ -33,6 +46,7 @@ export const routes: Routes = [
 	{
 		path: 'availability',
 		title: 'Disponibilidad',
+		canActivate: [authGuard],
 		loadComponent: () =>
 			import('./presentation/pages/availability/availability-page.component').then(
 				(module) => module.AvailabilityPageComponent
@@ -41,6 +55,7 @@ export const routes: Routes = [
 	{
 		path: 'reports',
 		title: 'Reportes',
+		canActivate: [authGuard],
 		loadComponent: () =>
 			import('./presentation/pages/reports/reports-page.component').then(
 				(module) => module.ReportsPageComponent
@@ -48,6 +63,6 @@ export const routes: Routes = [
 	},
 	{
 		path: '**',
-		redirectTo: 'spaces'
+		redirectTo: 'login'
 	}
 ];
